@@ -1,12 +1,13 @@
 package indrocraftapi;
 
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class IndrocraftAPI extends JavaPlugin {
 
-    public Utils utils;
+    public Utils utils = new Utils();
 
-    public void onEnable() {
-        utils = new Utils();
+    public static void test() {
+        Bukkit.getLogger().severe("static");
     }
 }
