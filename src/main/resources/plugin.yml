@@ -1,0 +1,4 @@
+name: IndrocraftAPI
+version: '${project.version}'
+main: indrocraftapi.IndrocraftAPI
+api-version: 1.18
