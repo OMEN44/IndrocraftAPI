@@ -1,16 +1,26 @@
 package indrocraftapi;
 
+import indrocraftapi.datamanager.SQLUtils;
+import indrocraftapi.features.homes.HomeUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-@SuppressWarnings("unused")
 public final class IndrocraftAPI extends JavaPlugin {
 
-    public void nonStatic(String arg) {
-        Bukkit.getLogger().severe("this is not static " + arg);
-    }
+    public SQLUtils sqlUtils = new SQLUtils("test", "localhost", "3306", "root", "");
 
-    public static void test() {
-        Bukkit.getLogger().severe("static");
+    @Override
+    public void onEnable() {
+
+        HomeUtils.createHomeTable(sqlUtils);
+
+        Player player = Bukkit.getPlayer("OMEN44");
+        Location location = new Location(player.getWorld(), 194.54, 171.00, -140.62);
+        HomeUtils.createHome("test", location, player);
+        //HomeUtils.deleteHome("test", player);
+
+        HomeUtils.teleportHome("test", player);
     }
 }
