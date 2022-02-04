@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @SuppressWarnings("unused")
 public class SQLUtils {
@@ -98,7 +99,7 @@ public class SQLUtils {
 
     /*
      *  +-----------------------------------------------+
-     *  |                   SQL Utils:                  |
+     *  |                   SQL GeneralUtils:                  |
      *  |    methods for setting data, getting data     |
      *  | as well as some smaller methods like countRows|
      *  +-----------------------------------------------+
@@ -114,7 +115,7 @@ public class SQLUtils {
     public void setData(String value, String idColumn, String id, String column, String tableName) {
         if (conn()) {return;}
         try {
-            PreparedStatement ps = conn.prepareStatement("UPDATE " + tableName + " SET " + column + "=? WHERE "
+            PreparedStatement ps = conn.prepareStatement("UPDATE " + tableName + " SET `" + column + "`=? WHERE "
                     + idColumn + "=?");
             if (isNum("int", value)) {
                 int valNum = Integer.parseInt(value);
@@ -252,7 +253,7 @@ public class SQLUtils {
             List<String> data = new ArrayList<>();
             PreparedStatement ps = conn.prepareStatement("SELECT " + columnName + " FROM " + tableName);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
+            while (rs.next()) {
                 data.add(rs.getString(columnName));
             }
             return data;
@@ -396,6 +397,26 @@ public class SQLUtils {
         try {
             PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tableName + " WHERE " + idColumn + "=?");
             ps.setString(1, idEquals);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * @param query SQL query to be executed
+     * @param parameters parameters for the query in the order that they should be inserted
+     */
+    public void makeQuery(String query, Object... parameters) {
+        if (conn()) {return;}
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            int index = 1;
+            for (Object param : parameters) {
+                ps.setObject(index, param);
+                index++;
+            }
             ps.executeUpdate();
 
         } catch (SQLException e) {

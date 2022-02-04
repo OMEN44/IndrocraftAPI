@@ -8,6 +8,13 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+@SuppressWarnings("unused")
 public class HomeUtils {
 
     private static final IndrocraftAPI api = IndrocraftAPI.getPlugin(IndrocraftAPI.class);
@@ -65,6 +72,8 @@ public class HomeUtils {
             api.sqlUtils.setData(String.valueOf(location.getX()), "homeID", id, "x", "homeTable");
             api.sqlUtils.setData(String.valueOf(location.getY()), "homeID", id, "y", "homeTable");
             api.sqlUtils.setData(String.valueOf(location.getZ()), "homeID", id, "z", "homeTable");
+            api.sqlUtils.setData(String.valueOf(location.getYaw()), "homeID", id, "yaw", "homeTable");
+            api.sqlUtils.setData(String.valueOf(location.getPitch()), "homeID", id, "pitch", "homeTable");
 
             api.sqlUtils.setData(location.getWorld().getName(), "homeID", id, "world", "homeTable");
             api.sqlUtils.setData(owner.getUniqueId().toString(), "homeID", id, "owner", "homeTable");
@@ -104,6 +113,8 @@ public class HomeUtils {
         sqlUtils.createColumn("x", "DOUBLE", "homeTable");
         sqlUtils.createColumn("y", "DOUBLE", "homeTable");
         sqlUtils.createColumn("z", "DOUBLE", "homeTable");
+        sqlUtils.createColumn("yaw", "FLOAT", "homeTable");
+        sqlUtils.createColumn("pitch", "FLOAT", "homeTable");
     }
 
     /**
@@ -133,5 +144,49 @@ public class HomeUtils {
             owner.sendMessage(ChatColor.RED + "You try with all your might to teleport! " +
                     "But you aren't quite strong enough to go between worlds!");
         }
+    }
+
+    public static int getPlayerHomeAmount(Player target) {
+        int x = 0;
+        try {
+            List<String> data = new ArrayList<>();
+            PreparedStatement ps = api.sqlUtils.getConnection().prepareStatement(
+                    "SELECT `owner` FROM `homeTable` WHERE `owner`=?");
+            ps.setString(1, target.getUniqueId().toString());
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                x++;
+            }
+            return x;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return x;
+    }
+
+    public static List<Home> getPlayersHomes(Player target) {
+        List<Home> homeList = new ArrayList<>();
+        try {
+            List<String> data = new ArrayList<>();
+            PreparedStatement ps = api.sqlUtils.getConnection().prepareStatement(
+                    "SELECT * FROM homeTable WHERE `owner`=?");
+            ps.setString(1, target.getUniqueId().toString());
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                homeList.add(new Home(
+                        target,
+                        rs.getString("homeID").replace(target.getUniqueId().toString(), ""),
+                        Bukkit.getWorld(rs.getString("world")),
+                        rs.getDouble("x"),
+                        rs.getDouble("y"),
+                        rs.getDouble("z"),
+                        rs.getFloat("yaw"),
+                        rs.getFloat("pitch")));
+            }
+            return homeList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return homeList;
     }
 }

@@ -50,7 +50,6 @@ public class Home {
     private Float pitch;
     private Float yaw;
     private Location location;
-    private Location position;
 
     //getters
     public World getWorld() {
@@ -86,9 +85,6 @@ public class Home {
     public Location getLocation() {
         return location;
     }
-    public Location getPosition() {
-        return position;
-    }
 
     //setters
     public void setWorld(World world) {
@@ -123,8 +119,5 @@ public class Home {
     }
     public void setLocation(Location location) {
         this.location = location;
-    }
-    public void setPosition(Location position) {
-        this.position = position;
     }
 }
