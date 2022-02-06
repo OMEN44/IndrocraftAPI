@@ -1,26 +1,32 @@
 package indrocraftapi;
 
+import indrocraftapi.datamanager.SQLConnector;
 import indrocraftapi.datamanager.SQLUtils;
-import indrocraftapi.features.ranks.Rank;
-import indrocraftapi.features.ranks.RankEditor;
-import indrocraftapi.features.ranks.RankUtils;
+import indrocraftapi.features.homes.Home;
+import indrocraftapi.features.homes.HomeUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class IndrocraftAPI extends JavaPlugin {
 
-    public SQLUtils sqlUtils = new SQLUtils("test", "localhost", "3306", "root", "");
+    public SQLConnector sqlConnector = new SQLConnector(
+            "test",
+            "localhost",
+            "3306",
+            "root",
+            "",
+            false,
+            this);
 
     @Override
     public void onEnable() {
-        RankEditor rb = new RankEditor("toot", "name").setPrimary(ChatColor.LIGHT_PURPLE)
-                .setSecondary(ChatColor.DARK_AQUA).save(sqlUtils);
-
-        Rank rank = RankUtils.getRank("toot");
-        if (rank.getrBrace().equals(""))
-            Bukkit.getLogger().severe(rank.getlBrace() + " ''");
-        if (rank.getrBrace() == null)
-            Bukkit.getLogger().severe(rank.getlBrace() + "null");
+        HomeUtils.createHomeTable();
+        Player player = Bukkit.getPlayer("OMEN44");
+        Location loc = new Location(player.getWorld(), 188.68, 171.00, -139.60, -0.15f, 28.50f);
+        HomeUtils.createHome("test", loc, player);
+        Home home = HomeUtils.getHome("test", player);
+        HomeUtils.teleportHome(home);
     }
 }

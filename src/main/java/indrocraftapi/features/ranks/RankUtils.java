@@ -12,7 +12,7 @@ import java.util.Iterator;
 
 public class RankUtils {
 
-    private static final IndrocraftAPI api = IndrocraftAPI.getPlugin(IndrocraftAPI.class);
+    private static final SQLUtils sqlUtils = new SQLUtils(IndrocraftAPI.getPlugin(IndrocraftAPI.class).sqlConnector);
 
     /**
      * @param sqlUtils connection to database
@@ -37,7 +37,7 @@ public class RankUtils {
      * @param rankId unique id for rank being deleted
      */
     public static void deleteRank(String rankId) {
-        api.sqlUtils.removeRow("rankId", rankId, "rankPresets");
+        sqlUtils.deleteRow("rankId", rankId, "rankPresets");
     }
 
     /**
@@ -48,20 +48,20 @@ public class RankUtils {
     public static Rank getRank(String rankId) {
         return new Rank(
                 rankId,
-                api.sqlUtils.getString("display", "rankID", rankId, "rankPresets"),
-                api.sqlUtils.getString("lBrace", "rankID", rankId, "rankPresets"),
-                api.sqlUtils.getString("rBrace", "rankID", rankId, "rankPresets"),
+                (String) sqlUtils.getData("display", "rankID", rankId, "rankPresets"),
+                (String) sqlUtils.getData("lBrace", "rankID", rankId, "rankPresets"),
+                (String) sqlUtils.getData("rBrace", "rankID", rankId, "rankPresets"),
                 readColour(
-                        api.sqlUtils.getString("primaryColour", "rankID", rankId, "rankPresets")
+                        (String) sqlUtils.getData("primaryColour", "rankID", rankId, "rankPresets")
                 ),
                 readColour(
-                        api.sqlUtils.getString("secondaryColour", "rankID", rankId, "rankPresets")
+                        (String) sqlUtils.getData("secondaryColour", "rankID", rankId, "rankPresets")
                 ),
-                api.sqlUtils.getString("nextRankId", "rankID", rankId, "rankPresets"),
+                (String) sqlUtils.getData("nextRankId", "rankID", rankId, "rankPresets"),
                 getAdvancement(
-                        api.sqlUtils.getString("nextAdvancement", "rankID", rankId, "rankPresets")
+                        (String) sqlUtils.getData("nextAdvancement", "rankID", rankId, "rankPresets")
                 ),
-                api.sqlUtils.getInt("level", "rankID", rankId, "rankPresets")
+                (Integer) sqlUtils.getData("level", "rankID", rankId, "rankPresets")
         );
     }
 
@@ -70,7 +70,7 @@ public class RankUtils {
      * @param rank Rank object being set
      */
     public static void setPlayerRank(Player player, Rank rank) {
-        api.sqlUtils.setData(rank.getId(), "UUID", player.getUniqueId().toString(), "rank", "players");
+        sqlUtils.setData(rank.getId(), "UUID", player.getUniqueId().toString(), "rank", "players");
     }
 
     /**
@@ -78,11 +78,11 @@ public class RankUtils {
      * @param rankId id of rank being set
      */
     public static void setPlayerRank(Player player, String rankId) {
-        api.sqlUtils.setData(rankId, "UUID", player.getUniqueId().toString(), "rank", "players");
+        sqlUtils.setData(rankId, "UUID", player.getUniqueId().toString(), "rank", "players");
     }
 
     public static void setPlayerNameColour(Player player, String colour) {
-        api.sqlUtils.setData(colour, "UUID", player.getUniqueId().toString(), "nameColour", "players");
+        sqlUtils.setData(colour, "UUID", player.getUniqueId().toString(), "nameColour", "players");
     }
 
     /**
@@ -90,13 +90,13 @@ public class RankUtils {
      * @apiNote This method updates the players rank and nameColour thus must be called after setting either
      */
     public static void loadPlayerRank(Player player) {
-        String rankId = api.sqlUtils.getString(
+        String rankId = (String) sqlUtils.getData(
                 "rank", "UUID", player.getUniqueId().toString(), "players"
         );
         Rank rank = getRank(rankId);
 
         //get colours and names
-        ChatColor n = readColour(api.sqlUtils.getString(
+        ChatColor n = readColour((String) sqlUtils.getData(
                 "nameColour", "UUID", player.getUniqueId().toString(), "players"
         ));
         ChatColor p = rank.getPrimary();
